@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
-    <AssemblyName>Southport.ResilientHttp</AssemblyName>
-    <RootNamespace>Southport.ResilientHttp</RootNamespace>
+    <AssemblyName>Southport.Extensions.HttpClient.Resilient</AssemblyName>
+    <RootNamespace>Southport.Extensions.HttpClient.Resilient</RootNamespace>
     <Authors>Robert Anstett</Authors>
     <Company>Southport Solutions, LLC</Company>
     <Product>Southport.ResilientHttp</Product>

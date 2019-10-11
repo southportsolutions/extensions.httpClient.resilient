@@ -1,4 +1,4 @@
-﻿namespace Southport.ResilientHttp
+﻿namespace Southport.Extensions.HttpClient.Resilient
 {
     public static class HttpMediaType
     {

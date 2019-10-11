@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 
-namespace Southport.ResilientHttp
+namespace Southport.Extensions.HttpClient.Resilient
 {
     public class ResilientHttpRequestException : HttpRequestException
     {

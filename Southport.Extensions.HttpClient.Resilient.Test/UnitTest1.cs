@@ -11,6 +11,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Southport.Extensions.HttpClient.Resilient.HttpClientExtensions;
 using Xunit;
 
 namespace Southport.ResilientHttp.Test

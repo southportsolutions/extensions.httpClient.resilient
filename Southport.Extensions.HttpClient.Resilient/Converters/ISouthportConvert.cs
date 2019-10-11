@@ -1,4 +1,4 @@
-﻿namespace Southport.ResilientHttp
+﻿namespace Southport.Extensions.HttpClient.Resilient.Converters
 {
     public interface ISouthportConvert
     {

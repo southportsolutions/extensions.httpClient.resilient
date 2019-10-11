@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 
-namespace Southport.ResilientHttp
+namespace Southport.Extensions.HttpClient.Resilient.Converters
 {
     public static class XmlConvert
     {

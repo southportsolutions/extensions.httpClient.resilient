@@ -22,10 +22,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Southport.Extensions.HttpClient.Resilient.Converters;
 
 // ReSharper disable MemberCanBePrivate.Global
 
-namespace Southport.ResilientHttp
+namespace Southport.Extensions.HttpClient.Resilient.HttpClientExtensions
 {
     /// <summary>
     /// Class HttpClientExtensions.
@@ -64,7 +65,7 @@ namespace Southport.ResilientHttp
         /// <param name="retryStatusCodes">Status code to force a retry.</param>
         /// <returns>Task&lt;HttpResponseMessage&gt;.</returns>
         /// <exception cref="ResilientHttpRequestException">There is no HTTP response.</exception>
-        public static async Task<HttpResponseMessage> SendResilientAsync(this HttpClient httpClient, string url, HttpMethod method, CancellationToken cancellationToken, int maxRetries = 2, List<HttpStatusCode> retryStatusCodes = null)
+        public static async Task<HttpResponseMessage> SendResilientAsync(this System.Net.Http.HttpClient httpClient, string url, HttpMethod method, CancellationToken cancellationToken, int maxRetries = 2, List<HttpStatusCode> retryStatusCodes = null)
         {
             return await SendResilientAsync(httpClient, ()=>new HttpRequestMessage(method, url), cancellationToken, maxRetries, retryStatusCodes);
         }
@@ -81,7 +82,7 @@ namespace Southport.ResilientHttp
         /// <param name="retryStatusCodes"></param>
         /// <returns>Task&lt;HttpResponseMessage&gt;.</returns>
         /// <exception>There is no HTTP response.</exception>
-        public static async Task<HttpResponseMessage> SendResilientAsync(this HttpClient httpClient, string url, Func<HttpContent> httpContentFunc, HttpMethod method, CancellationToken cancellationToken, int maxRetries = 2, List<HttpStatusCode> retryStatusCodes = null)
+        public static async Task<HttpResponseMessage> SendResilientAsync(this System.Net.Http.HttpClient httpClient, string url, Func<HttpContent> httpContentFunc, HttpMethod method, CancellationToken cancellationToken, int maxRetries = 2, List<HttpStatusCode> retryStatusCodes = null)
         {
             var httpRequestMessageFunc = new Func<HttpRequestMessage>(delegate
             {
@@ -103,7 +104,7 @@ namespace Southport.ResilientHttp
         /// <returns>Task&lt;HttpResponseMessage&gt;.</returns>
         /// <exception cref="NullReferenceException">The HttpRequestMessageFunction cannot be null.</exception>
         /// <exception cref="ResilientHttpRequestException">There is no HTTP response.</exception>
-        public static async Task<HttpResponseMessage> SendResilientAsync(this HttpClient httpClient, Func<HttpRequestMessage> httpRequestMessageFunc, CancellationToken cancellationToken, int maxRetries = 2, List<HttpStatusCode> retryStatusCodes = null)
+        public static async Task<HttpResponseMessage> SendResilientAsync(this System.Net.Http.HttpClient httpClient, Func<HttpRequestMessage> httpRequestMessageFunc, CancellationToken cancellationToken, int maxRetries = 2, List<HttpStatusCode> retryStatusCodes = null)
         {
             var retries = 0;
             retryStatusCodes = retryStatusCodes ?? RetryStatusCodes;

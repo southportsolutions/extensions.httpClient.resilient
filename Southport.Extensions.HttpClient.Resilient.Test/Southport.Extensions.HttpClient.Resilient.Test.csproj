@@ -5,9 +5,9 @@
 
     <IsPackable>false</IsPackable>
 
-    <AssemblyName>Southport.ResilientHttp.Test</AssemblyName>
+    <AssemblyName>Southport.Extensions.HttpClient.Resilient.Test</AssemblyName>
 
-    <RootNamespace>Southport.ResilientHttp.Test</RootNamespace>
+    <RootNamespace>Southport.Extensions.HttpClient.Resilient.Test</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ResilientHttpClient\Southport.ResilientHttp.csproj" />
+    <ProjectReference Include="..\Southport.Extensions.HttpClient.Resilient\Southport.Extensions.HttpClient.Resilient.csproj" />
   </ItemGroup>
 
 </Project>
