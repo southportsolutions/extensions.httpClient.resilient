@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+    <AssemblyName>Southport.ResilientHttp</AssemblyName>
+    <RootNamespace>Southport.ResilientHttp</RootNamespace>
+    <Authors>Robert Anstett</Authors>
+    <Company>Southport Solutions, LLC</Company>
+    <Product>Southport.ResilientHttp</Product>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+  </ItemGroup>
+
+</Project>
