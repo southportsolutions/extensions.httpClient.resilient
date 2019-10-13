@@ -7,6 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Southport.Extensions.HttpCl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Southport.Extensions.HttpClient.Resilient", "Southport.Extensions.HttpClient.Resilient\Southport.Extensions.HttpClient.Resilient.csproj", "{480D92F0-02E8-419A-B90B-FA5691665A07}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DevOps", "DevOps", "{5ADDADE6-EB9F-4687-B4BB-C872FCB29993}"
+	ProjectSection(SolutionItems) = preProject
+		DevOps\azure-pipelines.yml = DevOps\azure-pipelines.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

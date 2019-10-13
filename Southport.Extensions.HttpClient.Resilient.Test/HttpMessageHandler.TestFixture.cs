@@ -1,24 +1,33 @@
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Southport.ResilientHttp.Test
+namespace Southport.Extensions.HttpClient.Resilient.Test
 {
     public class HttpMessageHandlerTestFixture : HttpMessageHandler
     {
         public HttpContent Content { get; set; }
         public HttpStatusCode StatusCode { get; set; }
+        public Exception Exception { get; set; }
 
         public HttpMessageHandlerTestFixture()
         {
             StatusCode = HttpStatusCode.OK;
         }
 
+#pragma warning disable 1998
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+#pragma warning restore 1998
         {
-            return new HttpResponseMessage(statusCode: StatusCode) {Content = Content};
+            if (Exception != null)
+            {
+                throw Exception;
+            }
+
+            return new HttpResponseMessage(StatusCode) {Content = Content};
         }
 
         public void SetResponseContent(HttpContent content)

@@ -18,6 +18,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,6 +27,7 @@ using Southport.Extensions.HttpClient.Resilient.Converters;
 
 // ReSharper disable MemberCanBePrivate.Global
 
+[assembly: InternalsVisibleTo("Southport.Extensions.HttpClient.Resilient.Test")]
 namespace Southport.Extensions.HttpClient.Resilient.HttpClientExtensions
 {
     /// <summary>
@@ -52,6 +54,18 @@ namespace Southport.Extensions.HttpClient.Resilient.HttpClientExtensions
 
         public static readonly List<HttpStatusCode> RetryStatusCodes = new List<HttpStatusCode> {HttpStatusCode.RequestTimeout};
 
+        private static int _defaultRetries = 2;
+        public static int DefaultRetries
+        {
+            get => _defaultRetries;
+            set => _defaultRetries = value;
+        }
+
+        public static void SetDefaultResilientRetryCount(this System.Net.Http.HttpClient httpClient, int retryCount)
+        {
+            DefaultRetries = retryCount;
+        }
+
         #region Send
 
         /// <summary>
@@ -65,7 +79,7 @@ namespace Southport.Extensions.HttpClient.Resilient.HttpClientExtensions
         /// <param name="retryStatusCodes">Status code to force a retry.</param>
         /// <returns>Task&lt;HttpResponseMessage&gt;.</returns>
         /// <exception cref="ResilientHttpRequestException">There is no HTTP response.</exception>
-        public static async Task<HttpResponseMessage> SendResilientAsync(this System.Net.Http.HttpClient httpClient, string url, HttpMethod method, CancellationToken cancellationToken, int maxRetries = 2, List<HttpStatusCode> retryStatusCodes = null)
+        public static async Task<HttpResponseMessage> SendResilientAsync(this System.Net.Http.HttpClient httpClient, string url, HttpMethod method, CancellationToken cancellationToken, int? maxRetries = null, List<HttpStatusCode> retryStatusCodes = null)
         {
             return await SendResilientAsync(httpClient, ()=>new HttpRequestMessage(method, url), cancellationToken, maxRetries, retryStatusCodes);
         }
@@ -82,7 +96,7 @@ namespace Southport.Extensions.HttpClient.Resilient.HttpClientExtensions
         /// <param name="retryStatusCodes"></param>
         /// <returns>Task&lt;HttpResponseMessage&gt;.</returns>
         /// <exception>There is no HTTP response.</exception>
-        public static async Task<HttpResponseMessage> SendResilientAsync(this System.Net.Http.HttpClient httpClient, string url, Func<HttpContent> httpContentFunc, HttpMethod method, CancellationToken cancellationToken, int maxRetries = 2, List<HttpStatusCode> retryStatusCodes = null)
+        public static async Task<HttpResponseMessage> SendResilientAsync(this System.Net.Http.HttpClient httpClient, string url, Func<HttpContent> httpContentFunc, HttpMethod method, CancellationToken cancellationToken, int? maxRetries = null, List<HttpStatusCode> retryStatusCodes = null)
         {
             var httpRequestMessageFunc = new Func<HttpRequestMessage>(delegate
             {
@@ -99,14 +113,25 @@ namespace Southport.Extensions.HttpClient.Resilient.HttpClientExtensions
         /// <param name="httpClient">The HTTP client.</param>
         /// <param name="httpRequestMessageFunc">The HTTP request message function.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="maxRetries">The maximum retries.</param>
+        /// <param name="maxRetries">The maximum retries, must be greater than 0.</param>
         /// <param name="retryStatusCodes">The HTTP status code to force a retry.</param>
         /// <returns>Task&lt;HttpResponseMessage&gt;.</returns>
         /// <exception cref="NullReferenceException">The HttpRequestMessageFunction cannot be null.</exception>
         /// <exception cref="ResilientHttpRequestException">There is no HTTP response.</exception>
-        public static async Task<HttpResponseMessage> SendResilientAsync(this System.Net.Http.HttpClient httpClient, Func<HttpRequestMessage> httpRequestMessageFunc, CancellationToken cancellationToken, int maxRetries = 2, List<HttpStatusCode> retryStatusCodes = null)
+        public static async Task<HttpResponseMessage> SendResilientAsync(this System.Net.Http.HttpClient httpClient, Func<HttpRequestMessage> httpRequestMessageFunc, CancellationToken cancellationToken, int? maxRetries = null, List<HttpStatusCode> retryStatusCodes = null)
         {
             var retries = 0;
+            
+            if (maxRetries == null)
+            {
+                maxRetries = DefaultRetries;
+            }
+
+            if (maxRetries <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(maxRetries), maxRetries, "The maxRetries must be greater than 0.");
+            }
+
             retryStatusCodes = retryStatusCodes ?? RetryStatusCodes;
             HttpResponseMessage response = null;
             var requestSendTimes = new List<DateTime>();
@@ -131,19 +156,20 @@ namespace Southport.Extensions.HttpClient.Resilient.HttpClientExtensions
                         if (e.InnerException is WebException webException && webException.Status == WebExceptionStatus.ConnectFailure && retries < maxRetries)
                         {
                             Thread.Sleep(retries * LongSleepMilliseconds);
+                            continue;
                         }
                     }
 
-                    throw new ResilientHttpRequestException($"There was an exception at URL: {request.RequestUri.OriginalString}, Verb: {request.Method}.", e);
+                    throw new ResilientHttpRequestException($"There was an exception at URL: {request.RequestUri.OriginalString}, Verb: {request.Method}.", requestSendTimes, request.RequestUri, e);
                 }
                 catch (TaskCanceledException e)
                 {
                     if (e.CancellationToken.IsCancellationRequested)
                     {
-                        throw new ResilientHttpRequestException($"The HTTP request was canceled for URL: {request.RequestUri.OriginalString}, Verb: {request.Method}.", e);
+                        throw new ResilientHttpRequestException($"The HTTP request was canceled for URL: {request.RequestUri.OriginalString}, Verb: {request.Method}.", requestSendTimes, request.RequestUri,  e);
                     }
 
-                    throw new ResilientHttpRequestException($"The HTTP request timed out for URL: {request.RequestUri.OriginalString}, Verb: {request.Method}.", e);
+                    throw new ResilientHttpRequestException($"The HTTP request timed out for URL: {request.RequestUri.OriginalString}, Verb: {request.Method}.", requestSendTimes, request.RequestUri, e);
                 }
 
                 if (response.IsSuccessStatusCode 
@@ -155,11 +181,6 @@ namespace Southport.Extensions.HttpClient.Resilient.HttpClientExtensions
                 }
 
                 Thread.Sleep(retries * ShortSleepMilliseconds);
-            }
-
-            if (response == null)
-            {
-                throw new ResilientHttpRequestException("There is no HTTP response.");
             }
 
             await ThrowResponseException(response, maxRetries, requestSendTimes);
@@ -179,25 +200,25 @@ namespace Southport.Extensions.HttpClient.Resilient.HttpClientExtensions
         /// or
         /// HTTP response was not successful, retried {maxRetries} {Environment.NewLine}{Environment.NewLine} Response Message:{Environment.NewLine}{Environment.NewLine}UNABLE TO GET CONTENT FAILED WITH ERROR:{Environment.NewLine}{Environment.NewLine}{e.Message}{Environment.NewLine}Stacktrace:{Environment.NewLine}{e.StackTrace}
         /// </exception>
-        internal static async Task ThrowResponseException(HttpResponseMessage response, int maxRetries, List<DateTime> requestSendTimes = null)
+        internal static async Task ThrowResponseException(HttpResponseMessage response, int? maxRetries, List<DateTime> requestSendTimes = null)
         {
             try
             {
                 var messageString = await response.Content.ReadAsStringAsync();
-                throw new ResilientHttpRequestException(response, $"HTTP response was not successful, retried {maxRetries} {Environment.NewLine}{Environment.NewLine} Response Status Code:{response.StatusCode}{Environment.NewLine}Version:{response.Version}{Environment.NewLine} Response Message:{Environment.NewLine}{Environment.NewLine}{messageString}", requestSendTimes);
+                throw new ResilientHttpRequestException(response, $"HTTP response was not successful, retried {maxRetries ?? DefaultRetries} Response Status Code:{response.StatusCode} Version:{response.Version} Response Message:{messageString}", requestSendTimes);
             }
             catch (Exception e)
             {
-                throw new ResilientHttpRequestException(response, $"HTTP response was not successful, retried {maxRetries} {Environment.NewLine}{Environment.NewLine} Response Message:{Environment.NewLine}{Environment.NewLine}UNABLE TO GET CONTENT FAILED WITH ERROR:{Environment.NewLine}{Environment.NewLine}{e.Message}{Environment.NewLine}Stacktrace:{Environment.NewLine}{e.StackTrace}", requestSendTimes);
+                throw new ResilientHttpRequestException(response, $"HTTP response was not successful, retried {maxRetries ?? DefaultRetries} Response Message: UNABLE TO GET CONTENT FAILED WITH ERROR: {e.Message} Stacktrace:{e.StackTrace}", requestSendTimes);
             }
         }
 
-        internal static async Task<TResponseType> ProcessResponse<TResponseType>(HttpResponseMessage response, int maxRetries)
+        internal static async Task<TResponseType> ProcessResponse<TResponseType>(HttpResponseMessage response, int? maxRetries)
         {
             if (!response.IsSuccessStatusCode)
             {
 
-                await ThrowResponseException(response, maxRetries);
+                await ThrowResponseException(response, maxRetries ?? DefaultRetries);
             }
 
             var responseString = await response.Content.ReadAsStringAsync();
@@ -214,13 +235,18 @@ namespace Southport.Extensions.HttpClient.Resilient.HttpClientExtensions
         /// <param name="converter">Custom converter that implements the ISouthportConvert interface.</param>
         /// <returns>TResponse.</returns>
         /// <exception cref="Exception">Unable to deserialize exception. {Environment.NewLine}{Environment.NewLine}Content: {content}</exception>
-        internal static Func<HttpContent> CreateStringContentFunction<TContentType>(TContentType contentObject, string contentType = HttpMediaType.Json, Encoding encoding = null, ISouthportConvert converter = null)
+        internal static Func<HttpContent> CreateStringContentFunction<TType>(TType contentObject, string contentType, Encoding encoding = null, ISouthportConvert converter = null)
         {
             encoding = encoding ?? Encoding.UTF8;
-
+            
             if (converter != null)
             {
                 return () => new StringContent(converter.SerializeObject(contentObject), encoding, contentType);
+            }
+
+            if (contentType == HttpMediaType.Plain || contentObject is string)
+            {
+                return () => new StringContent(contentObject as string, encoding, contentType);
             }
 
             switch (contentType)
@@ -231,12 +257,7 @@ namespace Southport.Extensions.HttpClient.Resilient.HttpClientExtensions
                     return () => new StringContent(XmlConvert.SerializeObject(contentObject), encoding, contentType);
             }
 
-            if (contentObject is string)
-            {
-                return () => new StringContent(contentObject as string, encoding, contentType);
-            }
-
-            throw new Exception("Unable to determine the contentObject's serialization and it is not a string.'");
+            throw new Exception("Unable to determine the contentObject's serialization and it is not a string.");
         }
 
         /// <summary>
@@ -261,6 +282,11 @@ namespace Southport.Extensions.HttpClient.Resilient.HttpClientExtensions
                     return JsonConvert.DeserializeObject<TResponse>(contentString);
                 case HttpMediaType.Xml:
                     return XmlConvert.DeserializeObject<TResponse>(contentString);
+            }
+
+            if (typeof(TResponse) == typeof(string))
+            {
+                return (TResponse)(object)contentString;
             }
 
             throw new Exception("Unable to deserialize contentString.");

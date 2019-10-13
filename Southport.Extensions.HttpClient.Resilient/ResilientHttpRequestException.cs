@@ -35,10 +35,19 @@ namespace Southport.Extensions.HttpClient.Resilient
         {
             RequestSendTimes = requestSendTimes;
         }
+        public ResilientHttpRequestException(string message, List<DateTime> requestSendTimes, Uri uri) : this(message, requestSendTimes)
+        {
+            Url = uri;
+        }
+
         public ResilientHttpRequestException(string message, Exception inner) : base(message, inner) { }
         public ResilientHttpRequestException(string message, List<DateTime> requestSendTimes, Exception inner) : this(message, inner)
         {
             RequestSendTimes = requestSendTimes;
+        }
+        public ResilientHttpRequestException(string message, List<DateTime> requestSendTimes, Uri uri, Exception inner) : this(message, requestSendTimes, inner)
+        {
+            Url = uri;
         }
 
         public List<DateTime> RequestSendTimes { get; }

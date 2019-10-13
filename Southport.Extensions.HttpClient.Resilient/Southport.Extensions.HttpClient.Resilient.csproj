@@ -6,7 +6,17 @@
     <RootNamespace>Southport.Extensions.HttpClient.Resilient</RootNamespace>
     <Authors>Robert Anstett</Authors>
     <Company>Southport Solutions, LLC</Company>
-    <Product>Southport.ResilientHttp</Product>
+    <Product>Southport.Extensions.HttpClient.Resilient</Product>
+    <Description>This HTTPClient extension is designed to allow for retries when specific responses like timeouts occur during a request from the HTTPClient.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageIconUrl>https://southport.blob.core.windows.net/logos/iconLarge.png</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/southportsolutions/extensions.httpClient.resilient</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/southportsolutions/extensions.httpClient.resilient</RepositoryUrl>
+    <RepositoryType>GIT</RepositoryType>
+    <PackageTags>HttpClient</PackageTags>
+    <PackageReleaseNotes>Initial Release</PackageReleaseNotes>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>

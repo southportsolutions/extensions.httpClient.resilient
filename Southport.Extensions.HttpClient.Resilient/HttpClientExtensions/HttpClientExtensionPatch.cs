@@ -43,7 +43,7 @@ namespace Southport.Extensions.HttpClient.Resilient.HttpClientExtensions
         /// <param name="maxRetries">The maximum retries.</param>
         /// <returns>Task&lt;T&gt;.</returns>
         /// <exception cref="ResilientHttpRequestException">There is no HTTP response or the response was not successful.</exception>
-        public static async Task<TResponseType> PatchResilientAsync<TResponseType, TContentType>(this System.Net.Http.HttpClient httpClient, string url, TContentType contentObject, string httpContentType = HttpMediaType.Json, Encoding encoding = null, int maxRetries = 2, List<HttpStatusCode> retryStatusCodes = null) where TResponseType : class where TContentType : class
+        public static async Task<TResponseType> PatchResilientAsync<TResponseType, TContentType>(this System.Net.Http.HttpClient httpClient, string url, TContentType contentObject, string httpContentType = HttpMediaType.Json, Encoding encoding = null, int? maxRetries = null, List<HttpStatusCode> retryStatusCodes = null) where TResponseType : class where TContentType : class
         {
             return await PatchResilientAsync<TResponseType, TContentType>(httpClient, url, contentObject, CancellationToken.None, httpContentType, encoding, maxRetries, retryStatusCodes);
         }
@@ -58,7 +58,7 @@ namespace Southport.Extensions.HttpClient.Resilient.HttpClientExtensions
         /// <param name="maxRetries">The maximum retries.</param>
         /// <returns>Task&lt;HttpResponseMessage&gt;.</returns>
         /// <exception cref="ResilientHttpRequestException">There is no HTTP response.</exception>
-        public static async Task<HttpResponseMessage> PatchResilientAsync<TContentType>(this System.Net.Http.HttpClient httpClient, string url, TContentType contentObject, string httpContentType = HttpMediaType.Json, Encoding encoding = null, int maxRetries = 2, List<HttpStatusCode> retryStatusCodes = null) where TContentType : class
+        public static async Task<HttpResponseMessage> PatchResilientAsync<TContentType>(this System.Net.Http.HttpClient httpClient, string url, TContentType contentObject, string httpContentType = HttpMediaType.Json, Encoding encoding = null, int? maxRetries = null, List<HttpStatusCode> retryStatusCodes = null) where TContentType : class
         {
             return await PatchResilientAsync(httpClient, url, contentObject, CancellationToken.None, httpContentType, encoding, maxRetries, retryStatusCodes);
         }
@@ -71,7 +71,7 @@ namespace Southport.Extensions.HttpClient.Resilient.HttpClientExtensions
         /// <param name="maxRetries">The maximum retries.</param>
         /// <returns>Task&lt;HttpResponseMessage&gt;.</returns>
         /// <exception cref="ResilientHttpRequestException">There is no HTTP response.</exception>
-        public static async Task<HttpResponseMessage> PatchResilientAsync(this System.Net.Http.HttpClient httpClient, string url, int maxRetries = 2, List<HttpStatusCode> retryStatusCodes = null)
+        public static async Task<HttpResponseMessage> PatchResilientAsync(this System.Net.Http.HttpClient httpClient, string url, int? maxRetries = null, List<HttpStatusCode> retryStatusCodes = null)
         {
             return await PatchResilientAsync(httpClient, url, null, CancellationToken.None, maxRetries, retryStatusCodes);
         }
@@ -85,7 +85,7 @@ namespace Southport.Extensions.HttpClient.Resilient.HttpClientExtensions
         /// <param name="maxRetries">The maximum retries.</param>
         /// <returns>Task&lt;HttpResponseMessage&gt;.</returns>
         /// <exception cref="ResilientHttpRequestException">There is no HTTP response.</exception>
-        public static async Task<HttpResponseMessage> PatchResilientAsync(this System.Net.Http.HttpClient httpClient, string url, Func<HttpContent> httpContentFunc, int maxRetries = 2, List<HttpStatusCode> retryStatusCodes = null)
+        public static async Task<HttpResponseMessage> PatchResilientAsync(this System.Net.Http.HttpClient httpClient, string url, Func<HttpContent> httpContentFunc, int? maxRetries = null, List<HttpStatusCode> retryStatusCodes = null)
         {
             return await PatchResilientAsync(httpClient, url, httpContentFunc, CancellationToken.None, maxRetries, retryStatusCodes);
         }
@@ -95,7 +95,7 @@ namespace Southport.Extensions.HttpClient.Resilient.HttpClientExtensions
         /// </summary>
         /// <typeparam name="TResponseType">The type to deserialize the JSON response.</typeparam>
         /// <typeparam name="TContentType">The content type of the object to be JSON serialized and sent.</typeparam>
-        /// <param name="httpClient">The HTTP client.</param>
+        /// <param name="httpClient">The HTTP client.</param>httpContentType = HttpMediaType.Json
         /// <param name="url">The URL of the host to send the request to.</param>
         /// <param name="contentObject">The content object to be sent.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -105,7 +105,7 @@ namespace Southport.Extensions.HttpClient.Resilient.HttpClientExtensions
         /// <param name="retryStatusCodes"></param>
         /// <returns>Task&lt;T&gt;.</returns>
         /// <exception cref="ResilientHttpRequestException">There is no HTTP response or the response was not sccessful.</exception>
-        public static async Task<TResponseType> PatchResilientAsync<TResponseType, TContentType>(this System.Net.Http.HttpClient httpClient, string url, TContentType contentObject, CancellationToken cancellationToken, string httpContentType = HttpMediaType.Json, Encoding encoding = null, int maxRetries = 2, List<HttpStatusCode> retryStatusCodes = null) where TResponseType : class where TContentType : class
+        public static async Task<TResponseType> PatchResilientAsync<TResponseType, TContentType>(this System.Net.Http.HttpClient httpClient, string url, TContentType contentObject, CancellationToken cancellationToken, string httpContentType = HttpMediaType.Json, Encoding encoding = null, int? maxRetries = null, List<HttpStatusCode> retryStatusCodes = null) where TResponseType : class where TContentType : class
         {
             var response = await PatchResilientAsync(httpClient, url, contentObject, cancellationToken, httpContentType, encoding, maxRetries, retryStatusCodes);
             return await HttpClientExtensions.ProcessResponse<TResponseType>(response, maxRetries);
@@ -125,7 +125,7 @@ namespace Southport.Extensions.HttpClient.Resilient.HttpClientExtensions
         /// <param name="retryStatusCodes"></param>
         /// <returns>Task&lt;HttpResponseMessage&gt;.</returns>
         /// <exception cref="ResilientHttpRequestException">There is no HTTP response.</exception>
-        public static async Task<HttpResponseMessage> PatchResilientAsync<TContentType>(this System.Net.Http.HttpClient httpClient, string url, TContentType contentObject, CancellationToken cancellationToken, string httpContentType = HttpMediaType.Json, Encoding encoding = null, int maxRetries = 2, List<HttpStatusCode> retryStatusCodes = null) where TContentType : class
+        public static async Task<HttpResponseMessage> PatchResilientAsync<TContentType>(this System.Net.Http.HttpClient httpClient, string url, TContentType contentObject, CancellationToken cancellationToken, string httpContentType = HttpMediaType.Json, Encoding encoding = null, int? maxRetries = null, List<HttpStatusCode> retryStatusCodes = null) where TContentType : class
         {
             var stringContentFunction = HttpClientExtensions.CreateStringContentFunction(contentObject, httpContentType, encoding);
             return await PatchResilientAsync(httpClient, url, stringContentFunction, cancellationToken, maxRetries, retryStatusCodes);
@@ -141,7 +141,7 @@ namespace Southport.Extensions.HttpClient.Resilient.HttpClientExtensions
         /// <param name="retryStatusCodes"></param>
         /// <returns>Task&lt;HttpResponseMessage&gt;.</returns>
         /// <exception cref="ResilientHttpRequestException"></exception>
-        public static async Task<HttpResponseMessage> PatchResilientAsync(this System.Net.Http.HttpClient httpClient, string url, CancellationToken cancellationToken, int maxRetries = 2, List<HttpStatusCode> retryStatusCodes = null)
+        public static async Task<HttpResponseMessage> PatchResilientAsync(this System.Net.Http.HttpClient httpClient, string url, CancellationToken cancellationToken, int? maxRetries = null, List<HttpStatusCode> retryStatusCodes = null)
         {
             return await PatchResilientAsync(httpClient, url, null, cancellationToken, maxRetries, retryStatusCodes);
         }
@@ -157,7 +157,7 @@ namespace Southport.Extensions.HttpClient.Resilient.HttpClientExtensions
         /// <param name="retryStatusCodes"></param>
         /// <returns>Task&lt;HttpResponseMessage&gt;.</returns>
         /// <exception cref="ResilientHttpRequestException">There is no HTTP response.</exception>
-        public static async Task<HttpResponseMessage> PatchResilientAsync(this System.Net.Http.HttpClient httpClient, string url, Func<HttpContent> httpContentFunc, CancellationToken cancellationToken, int maxRetries = 2, List<HttpStatusCode> retryStatusCodes = null)
+        public static async Task<HttpResponseMessage> PatchResilientAsync(this System.Net.Http.HttpClient httpClient, string url, Func<HttpContent> httpContentFunc, CancellationToken cancellationToken, int? maxRetries = null, List<HttpStatusCode> retryStatusCodes = null)
         {
             return await HttpClientExtensions.SendResilientAsync(httpClient, url, httpContentFunc, new HttpMethod("PATCH"), cancellationToken, maxRetries, retryStatusCodes);
         }

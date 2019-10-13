@@ -41,7 +41,7 @@ namespace Southport.Extensions.HttpClient.Resilient.HttpClientExtensions
         /// <param name="maxRetries">The maximum retries.</param>
         /// <param name="retryStatusCodes">The retry status codes.</param>
         /// <returns>Task&lt;HttpResponseMessage&gt;.</returns>
-        public static async Task<HttpResponseMessage> GetResilientAsync(this System.Net.Http.HttpClient httpClient, string url, int maxRetries = 2, List<HttpStatusCode> retryStatusCodes = null)
+        public static async Task<HttpResponseMessage> GetResilientAsync(this System.Net.Http.HttpClient httpClient, string url, int? maxRetries = null, List<HttpStatusCode> retryStatusCodes = null)
         {
             return await GetResilientAsync(httpClient, url, CancellationToken.None, maxRetries, retryStatusCodes);
         }
@@ -55,7 +55,7 @@ namespace Southport.Extensions.HttpClient.Resilient.HttpClientExtensions
         /// <param name="maxRetries">The maximum retries.</param>
         /// <param name="retryStatusCodes">The retry status codes.</param>
         /// <returns>Task&lt;T&gt;.</returns>
-        public static async Task<TResponseType> GetResilientAsync<TResponseType>(this System.Net.Http.HttpClient httpClient, string url, int maxRetries = 2, List<HttpStatusCode> retryStatusCodes = null) where TResponseType : class
+        public static async Task<TResponseType> GetResilientAsync<TResponseType>(this System.Net.Http.HttpClient httpClient, string url, int? maxRetries = null, List<HttpStatusCode> retryStatusCodes = null) where TResponseType : class
         {
             return await GetResilientAsync<TResponseType>(httpClient, url, CancellationToken.None, maxRetries, retryStatusCodes);
         }
@@ -70,7 +70,7 @@ namespace Southport.Extensions.HttpClient.Resilient.HttpClientExtensions
         /// <param name="maxRetries">The maximum retries.</param>
         /// <param name="retryStatusCodes">The retry status codes.</param>
         /// <returns>Task&lt;TResponseType&gt;.</returns>
-        public static async Task<TResponseType> GetResilientAsync<TResponseType>(this System.Net.Http.HttpClient httpClient, string url, CancellationToken cancellationToken, int maxRetries = 2, List<HttpStatusCode> retryStatusCodes = null) where TResponseType : class
+        public static async Task<TResponseType> GetResilientAsync<TResponseType>(this System.Net.Http.HttpClient httpClient, string url, CancellationToken cancellationToken, int? maxRetries = null, List<HttpStatusCode> retryStatusCodes = null) where TResponseType : class
         {
             var response = await GetResilientAsync(httpClient, url, cancellationToken, maxRetries, retryStatusCodes);
             return await HttpClientExtensions.ProcessResponse<TResponseType>(response, maxRetries);
@@ -86,7 +86,7 @@ namespace Southport.Extensions.HttpClient.Resilient.HttpClientExtensions
         /// <param name="retryStatusCodes">The retry status codes.</param>
         /// <returns>Task&lt;HttpResponseMessage&gt;.</returns>
         /// <exception cref="ResilientHttpRequestException">There is no HTTP response.</exception>
-        public static async Task<HttpResponseMessage> GetResilientAsync(this System.Net.Http.HttpClient httpClient, string url, CancellationToken cancellationToken, int maxRetries = 2, List<HttpStatusCode> retryStatusCodes = null)
+        public static async Task<HttpResponseMessage> GetResilientAsync(this System.Net.Http.HttpClient httpClient, string url, CancellationToken cancellationToken, int? maxRetries = null, List<HttpStatusCode> retryStatusCodes = null)
         {
             return await HttpClientExtensions.SendResilientAsync(httpClient, url, HttpMethod.Get, cancellationToken, maxRetries, retryStatusCodes);
         }
